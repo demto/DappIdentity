@@ -9,11 +9,13 @@ using DApp.API.Data;
 using DApp.API.Helpers;
 using DApp.API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -40,7 +42,27 @@ namespace DApp.API
             services.AddDbContext<DataContext>(x => x
                 .UseSqlServer(Configuration.GetConnectionString("DApp"))
                 .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.IncludeIgnoredWarning)));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+            
+            // Do not do the below. This is only so that we can use the current very weak password
+            IdentityBuilder builder = services.AddIdentityCore<User>(opt => {
+               opt.Password.RequireDigit = false;
+               opt.Password.RequiredLength = 4;
+               opt.Password.RequireNonAlphanumeric = false;
+               opt.Password.RequireUppercase = false; 
+            });
+
+            builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
+            builder.AddEntityFrameworkStores<DataContext>();
+            builder.AddRoleValidator<RoleValidator<Role>>();
+            builder.AddRoleManager<RoleManager<Role>>();
+            builder.AddSignInManager<SignInManager<User>>();
+
+            services.AddMvc(opt => {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(opt => {
                     opt.SerializerSettings.ReferenceLoopHandling =
                         Newtonsoft.Json.ReferenceLoopHandling.Ignore;
@@ -126,7 +148,7 @@ namespace DApp.API
                 // app.UseHsts();
             }
 
-            seeder.SeedUsers();
+            // seeder.SeedUsers();
 
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             // app.UseHttpsRedirection();

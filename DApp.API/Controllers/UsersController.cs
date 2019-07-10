@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DApp.API.Controllers
 {
     [ServiceFilter(typeof(LogUserActivity))]
-    [Authorize]
+    // [Authorize] same as in message controller
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase

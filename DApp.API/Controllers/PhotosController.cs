@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace DApp.API.Controllers
 {
-    [Authorize]
+    // [Authorize] same as in message controller
     [Route("api/users/{userId}/photos")]
     [ApiController]
     public class PhotosController : ControllerBase

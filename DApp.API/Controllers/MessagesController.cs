@@ -13,9 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace DApp.API.Controllers
 {
     // [ServiceFilter(typeof(LogUserActivity))]
-    [Authorize]
+    // [Authorize] not needed since we added MVC options in Startup
     [Route("api/users/{userId}/[controller]")]
     [ApiController]
+    
     public class MessagesController: ControllerBase
     {
         private readonly IMapper _mapper;
