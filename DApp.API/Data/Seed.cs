@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DApp.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
@@ -8,19 +9,58 @@ namespace DApp.API.Data
     public class Seed
     {
         private readonly UserManager<User> _userManager;
-        public Seed(UserManager<User> userManager)
+        private readonly RoleManager<Role> _roleManager;
+        private readonly DataContext _context;
+
+        public Seed(UserManager<User> userManager,
+            RoleManager<Role> roleManager,
+            DataContext context)
         {
+            _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public void SeedUsers(){
-            var userData = System.IO.File.ReadAllText("Data/UserSeedData.json");
-            var users = JsonConvert.DeserializeObject<IList<User>>(userData);
+        public void SeedUsers()
+        {      
+            if (!_userManager.Users.Any())
+            {
+                var userData = System.IO.File.ReadAllText("Data/UserSeedData.json");
+                var users = JsonConvert.DeserializeObject<List<User>>(userData);
 
-            foreach(var user in users){
-              _userManager.CreateAsync(user, "password").Wait();
-            } 
+                var roles = new List<Role>
+                {
+                    new Role{Name = "Member"},
+                    new Role{Name = "Admin"},
+                    new Role{Name = "Moderator"},
+                    new Role{Name = "VIP"},
+                };
 
+                foreach (var role in roles)
+                {
+                    _roleManager.CreateAsync(role).Wait();
+                }
+
+                // foreach (var user in users)
+                // {
+                //     //user.Photos.SingleOrDefault().IsApproved = true;
+                //     _userManager.CreateAsync(user, "password").Wait();
+                //     _userManager.AddToRoleAsync(user, "Member").Wait();
+                // }
+
+                var adminUser = new User
+                {
+                    UserName = "Admin"
+                };
+
+                IdentityResult result = _userManager.CreateAsync(adminUser, "password").Result;
+
+                if (result.Succeeded)
+                {
+                    var admin = _userManager.FindByNameAsync("Admin").Result;
+                    _userManager.AddToRolesAsync(admin, new[] {"Admin", "Moderator"}).Wait();
+                }
+            }               
         }
     }
 }

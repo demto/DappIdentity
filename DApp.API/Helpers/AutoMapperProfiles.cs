@@ -14,7 +14,7 @@ namespace DApp.API.Helpers {
                     opt.MapFrom(src => src.Photos.FirstOrDefault(p => p.IsMain).Url);
                 })
                 .ForMember(dest => dest.Age, opt =>
-                    opt.ResolveUsing(d => d.DateOfBirth.CalculateAge()));
+                    opt.ResolveUsing(d => d.DateOfBirth.CalculateAge())).ReverseMap();
 
             CreateMap<User, UserForDetailedDto>()
                 .ForMember(dest => dest.PhotoUrl, opt => {

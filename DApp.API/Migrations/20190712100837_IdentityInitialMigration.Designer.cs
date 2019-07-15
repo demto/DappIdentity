@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20190709161307_IdentityInitialMigration")]
+    [Migration("20190712100837_IdentityInitialMigration")]
     partial class IdentityInitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -193,17 +193,9 @@ namespace DApp.API.Migrations
 
                     b.Property<int>("RoleId");
 
-                    b.Property<int?>("RoleId1");
-
-                    b.Property<int?>("UserId1");
-
                     b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("RoleId1");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("AspNetUserRoles");
                 });
@@ -327,23 +319,15 @@ namespace DApp.API.Migrations
 
             modelBuilder.Entity("DApp.API.Models.UserRole", b =>
                 {
-                    b.HasOne("DApp.API.Models.Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("DApp.API.Models.Role", "Role")
                         .WithMany("UserRoles")
-                        .HasForeignKey("RoleId1");
-
-                    b.HasOne("DApp.API.Models.User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DApp.API.Models.User", "User")
                         .WithMany("UserRoles")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

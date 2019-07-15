@@ -57,6 +57,18 @@ namespace DApp.API
             builder.AddRoleManager<RoleManager<Role>>();
             builder.AddSignInManager<SignInManager<User>>();
 
+            services.AddAuthorization(options => {
+                options.AddPolicy("RequireAdmin", policy => {
+                    policy.RequireRole("Admin");
+                });
+                options.AddPolicy("ModeratPhotoRole", policy => {
+                    policy.RequireRole("Admin", "Moderator");
+                });
+                options.AddPolicy("VipOnly", policy => {
+                    policy.RequireRole("VIP");
+                });
+            });
+
             services.AddMvc(opt => {
                 var policy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
@@ -69,6 +81,7 @@ namespace DApp.API
             });
             services.AddCors();
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+            Mapper.Reset();
             services.AddAutoMapper();
             services.AddTransient<Seed>();
             services.AddScoped<IAuthRepository, AuthRepository>();
@@ -148,7 +161,7 @@ namespace DApp.API
                 // app.UseHsts();
             }
 
-            // seeder.SeedUsers();
+            seeder.SeedUsers();
 
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             // app.UseHttpsRedirection();

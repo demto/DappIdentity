@@ -23,6 +23,7 @@ namespace DApp.API.Data
             modelBuilder.ApplyConfiguration(new ValueConfigs());
             modelBuilder.ApplyConfiguration(new LikeConfigs());
             modelBuilder.ApplyConfiguration(new MessageConfigs());
+            modelBuilder.ApplyConfiguration(new UserRoleConfig());
         }
     }
 }
